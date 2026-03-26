@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Name — UI/UX Prototype</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+:root{--bg:#111111;--bg2:#1A1A1A;--card:#222222;--border:#2E2E2E;--bh:#3E3E3E;--amber:#FF8C00;--amber2:#CC5500;--text:#F5F5F5;--muted:#888888;--success:#22C55E;--danger:#EF4444}
+body{background:#0A0A0A;display:flex;flex-direction:column;align-items:center;padding:20px;min-height:100vh}
+.toolbar{width:900px;max-width:100%;background:#1A1A1A;border:0.5px solid #2E2E2E;border-radius:10px 10px 0 0;padding:12px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vtlabel{font-size:11px;color:#888;margin-right:4px}
+.vtb{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid #2E2E2E;color:#888;background:transparent;transition:all .2s}
+.vtb.on{background:#FF8C00;color:#1A0800;border-color:#FF8C00}
+.page-tabs{display:flex;gap:2px;margin-left:auto}
+.ptb{padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;color:#888;border:0.5px solid transparent;transition:all .2s}
+.ptb.on{color:#FF8C00;border-color:#FF8C00}
+.site{width:900px;max-width:100%;background:var(--bg);border:0.5px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden}
+.frame{height:620px;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.frame::-webkit-scrollbar{width:4px}
+.frame::-webkit-scrollbar-track{background:var(--bg)}
+.frame::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.page{display:none}
+.page.active{display:block}
+
+/* NAV */
+.nav{background:rgba(17,17,17,0.96);backdrop-filter:blur(10px);padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:100;transition:background .3s}
+.logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text);text-decoration:none}
+.shield-icon{width:22px;height:22px;background:var(--amber);clip-path:polygon(50% 0%,100% 25%,100% 65%,50% 100%,0% 65%,0% 25%);flex-shrink:0}
+.nav-links{display:flex;gap:2px}
+.nl{padding:6px 12px;font-size:12px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.nl:hover,.nl.active{color:var(--amber);border-bottom-color:var(--amber)}
+.nav-ctas{display:flex;gap:8px;align-items:center}
+.nav-phone{font-size:11px;color:var(--muted);padding:5px 10px;border:0.5px solid var(--border);border-radius:5px;cursor:pointer;transition:all .2s}
+.nav-phone:hover{border-color:var(--amber);color:var(--text)}
+.btn-pri{background:var(--amber);color:#1A0800;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-block}
+.btn-pri:hover{background:var(--amber2);box-shadow:0 0 20px rgba(255,140,0,.3)}
+.btn-sec{background:transparent;color:var(--text);padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border);transition:all .2s;display:inline-block}
+.btn-sec:hover{border-color:var(--amber);color:var(--amber)}
+.btn-out{background:transparent;color:var(--amber);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--amber);transition:all .2s;display:inline-block}
+.btn-out:hover{background:rgba(255,140,0,.08)}
+
+/* HERO */
+.hero{min-height:540px;background:var(--bg);display:flex;align-items:center;padding:90px 40px 70px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,140,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,0,.035) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;transition:transform .1s}
+.hero-glow{position:absolute;top:-80px;right:-80px;width:520px;height:520px;background:radial-gradient(circle,rgba(255,140,0,.07) 0%,transparent 65%);pointer-events:none}
+.hero-content{max-width:560px;position:relative;z-index:2}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,140,0,.1);border:0.5px solid rgba(255,140,0,.3);border-radius:20px;padding:4px 14px;font-size:11px;color:var(--amber);margin-bottom:22px;font-weight:500}
+.badge-dot{width:6px;height:6px;background:var(--amber);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:42px;font-weight:800;line-height:1.12;color:var(--text);margin-bottom:18px;letter-spacing:-.025em}
+.hero h1 span{color:var(--amber)}
+.hero p{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:32px;max-width:480px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.hero-visual{position:absolute;right:60px;top:50%;transform:translateY(-50%);z-index:1}
+
+/* TRUST BAR */
+.trust{padding:18px 40px;background:var(--bg2);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:28px}
+.trust-label{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:500}
+.trust-items{display:flex;gap:28px;align-items:center;flex:1;justify-content:space-around;flex-wrap:wrap}
+.trust-item{font-size:11px;color:#555;font-weight:700;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);background:var(--border)}
+.stat{background:var(--bg);padding:32px 24px;text-align:center}
+.stat-num{font-size:38px;font-weight:800;color:var(--amber);letter-spacing:-.03em;line-height:1}
+.stat-label{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+/* SECTIONS */
+.section{padding:72px 40px}
+.section.alt{background:var(--bg2)}
+.section-badge{font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.section h2{font-size:28px;font-weight:800;color:var(--text);margin-bottom:10px;letter-spacing:-.02em}
+.section h2::after{content:'';display:block;width:40px;height:3px;background:var(--amber);margin-top:12px;border-radius:2px}
+.section-sub{font-size:14px;color:var(--muted);margin-bottom:36px;max-width:520px;line-height:1.7;margin-top:8px}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cards2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.scard{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:24px;transition:all .25s;cursor:pointer;position:relative;overflow:hidden}
+.scard:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.scard-bar{position:absolute;bottom:0;left:0;height:2px;width:0;background:var(--amber);transition:width .35s}
+.scard:hover .scard-bar{width:100%}
+.scard-icon{width:40px;height:40px;background:rgba(255,140,0,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.scard h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.scard p{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:16px}
+.scard-link{font-size:11px;color:var(--amber);font-weight:600}
+
+/* PROCESS STEPS */
+.process{display:flex;gap:0;position:relative;margin-top:36px;padding-top:48px}
+.process::before{content:'';position:absolute;top:20px;left:10%;right:10%;height:1px;background:var(--border)}
+.pstep{flex:1;text-align:center}
+.pstep-dot{width:40px;height:40px;background:var(--card);border:0.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);margin:0 auto 14px;position:relative;z-index:1;transition:all .3s}
+.pstep-dot.active{background:var(--amber);color:#1A0800;border-color:var(--amber);box-shadow:0 0 16px rgba(255,140,0,.3)}
+.pstep h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px}
+.pstep p{font-size:11px;color:var(--muted);line-height:1.5;padding:0 8px}
+
+/* TESTIMONIALS */
+.tcard{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:24px;position:relative;transition:border-color .2s}
+.tcard:hover{border-color:var(--bh)}
+.tcard-quote{font-size:36px;color:rgba(255,140,0,.15);font-family:Georgia,serif;line-height:1;margin-bottom:6px}
+.tcard p{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:18px;font-style:italic}
+.tcard-author{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,140,0,.15);border:0.5px solid rgba(255,140,0,.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0}
+.tcard-name{font-size:12px;font-weight:600;color:var(--text)}
+.tcard-role{font-size:11px;color:var(--muted);margin-top:1px}
+.stars{color:var(--amber);font-size:12px;margin-bottom:12px;letter-spacing:2px}
+
+/* CASE STUDIES */
+.cscard{background:var(--card);border:0.5px solid var(--border);border-radius:10px;overflow:hidden;transition:all .25s;cursor:pointer}
+.cscard:hover{border-color:var(--amber);transform:translateY(-2px)}
+.cscard-top{padding:22px;border-bottom:0.5px solid var(--border)}
+.cscard-tag{font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.cscard h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.cscard p{font-size:12px;color:var(--muted);line-height:1.65}
+.cscard-bottom{padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
+.cscard-metric{font-size:22px;font-weight:800;color:var(--amber);line-height:1}
+.cscard-metric-label{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* CTA BAND */
+.cta-band{background:var(--bg2);border-left:3px solid var(--amber);border-radius:0 10px 10px 0;padding:40px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:0 40px 40px}
+.cta-band h2{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
+.cta-band p{font-size:13px;color:var(--muted)}
+.cta-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select,.field textarea{background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:10px 13px;font-size:13px;color:var(--text);outline:none;transition:border .2s;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,140,0,.08)}
+.field textarea{resize:vertical;min-height:88px}
+.field.full{grid-column:1/-1}
+.field select option{background:var(--card)}
+
+/* FOOTER */
+.footer{background:#0A0A0A;border-top:0.5px solid var(--border);padding:52px 40px 28px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px}
+.footer-brand p{font-size:12px;color:var(--muted);line-height:1.75;margin:12px 0 18px;max-width:220px}
+.footer-col h4{font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.footer-col a{display:block;font-size:12px;color:var(--muted);margin-bottom:8px;cursor:pointer;transition:color .2s;text-decoration:none}
+.footer-col a:hover{color:var(--text)}
+.footer-bottom{border-top:0.5px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:11px;color:#444}
+.footer-contact{display:flex;gap:20px}
+.footer-contact span{font-size:11px;color:var(--muted)}
+
+/* WA FLOAT */
+.wa-float{width:48px;height:48px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(37,211,102,.35);margin:20px 20px 0 auto;transition:transform .2s}
+.wa-float:hover{transform:scale(1.1)}
+
+/* WIREFRAME */
+.wf .hero,.wf .section,.wf .section.alt,.wf .stats-row .stat,.wf .trust,.wf .footer,.wf .cta-band{background:#1C1C1C!important}
+.wf .hero-grid,.wf .hero-glow,.wf .badge-dot,.wf .scard-bar,.wf .hero-visual{display:none!important}
+.wf *{color:#4A4A4A!important;border-color:#333!important;background-image:none!important}
+.wf .shield-icon,.wf .btn-pri,.wf .scard-icon,.wf .avatar,.wf .wa-float{background:#2D2D2D!important;box-shadow:none!important}
+.wf .btn-pri{color:#666!important}
+.wf .stats-row{background:#2A2A2A!important}
+.wf .section h2::after{background:#444!important}
+.wf .hero h1,.wf .hero p{color:#444!important}
+.wf .tcard-quote{display:none}
+.wf .stars{color:#3A3A3A!important}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="vtlabel">Fidelity:</span>
+  <div class="vtb on" id="hf-btn" onclick="setFidelity('hf')">High fidelity</div>
+  <div class="vtb" id="lf-btn" onclick="setFidelity('lf')">Low fidelity (wireframe)</div>
+  <div class="page-tabs">
+    <span class="vtlabel" style="margin-left:12px">Page:</span>
+    <div class="ptb on" onclick="showPage('home',this)">Home</div>
+    <div class="ptb" onclick="showPage('services',this)">Services</div>
+    <div class="ptb" onclick="showPage('about',this)">About</div>
+    <div class="ptb" onclick="showPage('contact',this)">Contact</div>
+  </div>
+</div>
+
+<div class="site" id="site">
+<div class="frame" id="frame">
+
+<!-- HOME -->
+<div class="page active" id="pg-home">
+<nav class="nav" id="nav-home">
+  <div class="logo"><div class="shield-icon"></div>COMPANY NAME </div>
+  <div class="nav-links">
+    <div class="nl active">Home</div>
+    <div class="nl" onclick="showPage('about',null)">About</div>
+    <div class="nl" onclick="showPage('services',null)">Services</div>
+    <div class="nl">Case Studies</div>
+    <div class="nl" onclick="showPage('contact',null)">Contact</div>
+  </div>
+  <div class="nav-ctas">
+    <div class="nav-phone">+91 1234567890
+    </div>
+    <div class="btn-pri" onclick="showPage('contact',null)">Free consultation</div>
+  </div>
+</nav>
+
+<div class="hero" id="hero">
+  <div class="hero-grid" id="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="badge-dot"></div>Trusted cybersecurity partner · India</div>
+    <h1>Securing your<br><span>digital infrastructure</span></h1>
+    <p>Governance, Risk &amp; Compliance · Network Security · Penetration Testing. We protect what matters most — your data, systems, and reputation.</p>
+    <div class="hero-btns">
+      <div class="btn-pri" onclick="showPage('contact',null)">Get a free consultation →</div>
+      <div class="btn-sec" onclick="showPage('services',null)">View our services</div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <svg width="200" height="220" viewBox="0 0 200 220" fill="none">
+      <path d="M100 10L185 48V108C185 158 100 210 100 210C100 210 15 158 15 108V48L100 10Z" fill="rgba(255,140,0,0.05)" stroke="rgba(255,140,0,0.25)" stroke-width="1.5"/>
+      <path d="M100 32L167 64V112C167 152 100 190 100 190C100 190 33 152 33 112V64L100 32Z" fill="rgba(255,140,0,0.03)" stroke="rgba(255,140,0,0.15)" stroke-width="1"/>
+      <path d="M78 108L94 124L124 94" stroke="#FF8C00" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="100" cy="108" r="26" stroke="rgba(255,140,0,0.18)" stroke-width="1" stroke-dasharray="5 4"/>
+      <circle cx="100" cy="108" r="40" stroke="rgba(255,140,0,0.08)" stroke-width="0.5" stroke-dasharray="3 6"/>
+    </svg>
+  </div>
+</div>
+
+<div class="trust">
+  <span class="trust-label">Compliance frameworks:</span>
+  <div class="trust-items">
+    <div class="trust-item">ISO 27001</div>
+    <div class="trust-item">SOC 2</div>
+    <div class="trust-item">NIST CSF</div>
+    <div class="trust-item">OWASP</div>
+    <div class="trust-item">PCI DSS</div>
+    <div class="trust-item">GDPR</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-num" data-target="50" data-suffix="+">0</div><div class="stat-label">Clients protected</div></div>
+  <div class="stat"><div class="stat-num" data-target="200" data-suffix="+">0</div><div class="stat-label">Security audits completed</div></div>
+  <div class="stat"><div class="stat-num" data-target="5" data-suffix="+">0</div><div class="stat-label">Years in operation</div></div>
+  <div class="stat"><div class="stat-num" data-target="100" data-suffix="%">0</div><div class="stat-label">Client retention rate</div></div>
+</div>
+
+<div class="section">
+  <div class="section-badge">What we do</div>
+  <h2>Comprehensive security services</h2>
+  <p class="section-sub">From compliance frameworks to active threat simulation — every layer of your security posture, covered.</p>
+  <div class="cards3">
+    <div class="scard" onclick="showPage('services',null)">
+      <div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/></svg></div>
+      <h3>Governance, Risk &amp; Compliance</h3>
+      <p>ISO 27001, SOC 2, PCI DSS compliance frameworks. Risk assessments, policy development, and full audit readiness programs.</p>
+      <div class="scard-link">Learn about GRC →</div>
+      <div class="scard-bar"></div>
+    </div>
+    <div class="scard" onclick="showPage('services',null)">
+      <div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <h3>Network Security</h3>
+      <p>Firewall configuration, intrusion detection systems, network segmentation design, and continuous threat monitoring.</p>
+      <div class="scard-link">Learn about network security →</div>
+      <div class="scard-bar"></div>
+    </div>
+    <div class="scard" onclick="showPage('services',null)">
+      <div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73L13 2.27a2 2 0 00-2 0L4 6.27A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+      <h3>Penetration Testing</h3>
+      <p>Black box, white box, and grey box testing. Real-world attack simulation with both executive and technical reporting.</p>
+      <div class="scard-link">Learn about pentesting →</div>
+      <div class="scard-bar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section alt">
+  <div class="section-badge">Why choose us</div>
+  <h2>Built by practitioners, not theorists</h2>
+  <p class="section-sub">Our team has operated on both sides — red team and blue team. We know how attackers think because we have been them.</p>
+  <div class="cards2">
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Response within 24 hours</h3><p>Every inquiry gets a same-business-day response. No automated gatekeeping — you speak to a senior engineer from day one.</p></div>
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><h3>Deliverable-first approach</h3><p>Every engagement ends with a detailed report — executive summary for leadership, technical depth for your engineers.</p></div>
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><h3>Dedicated account ownership</h3><p>One point of contact throughout. No shuffling between departments or handing you off to junior analysts mid-engagement.</p></div>
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Continuous monitoring support</h3><p>We don't disappear after the report. Ongoing support packages keep your defences current as the threat landscape evolves.</p></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-badge">Client results</div>
+  <h2>Case studies</h2>
+  <p class="section-sub">Real outcomes from real engagements. Identifying details anonymised at client request.</p>
+  <div class="cards3">
+    <div class="cscard">
+      <div class="cscard-top">
+        <div class="cscard-tag">Financial services</div>
+        <h3>GRC overhaul for a regional fintech</h3>
+        <p>Legacy compliance processes were creating audit risk. We rebuilt their policy framework from scratch and guided them through ISO 27001 certification in 14 weeks.</p>
+      </div>
+      <div class="cscard-bottom">
+        <div><div class="cscard-metric">ISO 27001</div><div class="cscard-metric-label">Certified in 14 weeks</div></div>
+        <div class="btn-out" style="font-size:11px;padding:5px 10px">Read more →</div>
+      </div>
+    </div>
+    <div class="cscard">
+      <div class="cscard-top">
+        <div class="cscard-tag">Healthcare</div>
+        <h3>Network segmentation for a hospital group</h3>
+        <p>Flat network architecture exposed clinical systems to ransomware. We designed and implemented full east-west segmentation across 3 facilities.</p>
+      </div>
+      <div class="cscard-bottom">
+        <div><div class="cscard-metric">−78%</div><div class="cscard-metric-label">Attack surface reduction</div></div>
+        <div class="btn-out" style="font-size:11px;padding:5px 10px">Read more →</div>
+      </div>
+    </div>
+    <div class="cscard">
+      <div class="cscard-top">
+        <div class="cscard-tag">E-commerce</div>
+        <h3>Full pentest for a ₹50Cr online retailer</h3>
+        <p>Pre-launch security assessment uncovered 3 critical and 11 high vulnerabilities before they ever reached production.</p>
+      </div>
+      <div class="cscard-bottom">
+        <div><div class="cscard-metric">14</div><div class="cscard-metric-label">Critical/high vulns fixed</div></div>
+        <div class="btn-out" style="font-size:11px;padding:5px 10px">Read more →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section alt">
+  <div class="section-badge">What clients say</div>
+  <h2>Trusted by security-conscious teams</h2>
+  <p class="section-sub">From startups to enterprise — our clients trust us with their most critical systems.</p>
+  <div class="cards3">
+    <div class="tcard"><div class="tcard-quote">"</div><div class="stars">★★★★★</div><p>"They found vulnerabilities our internal team had missed for two years. The pentest report was the most thorough documentation we have ever received from a vendor."</p><div class="tcard-author"><div class="avatar">RK</div><div><div class="tcard-name">Rohit Kumar</div><div class="tcard-role">CTO · FinTech Startup, Bangalore</div></div></div></div>
+    <div class="tcard"><div class="tcard-quote">"</div><div class="stars">★★★★★</div><p>"GRC compliance felt overwhelming before Company Name. They made ISO 27001 achievable in a timeline we did not think was possible for our team size."</p><div class="tcard-author"><div class="avatar">PM</div><div><div class="tcard-name">Priya Mehta</div><div class="tcard-role">IT Manager · Healthcare Group, Hyderabad</div></div></div></div>
+    <div class="tcard"><div class="tcard-quote">"</div><div class="stars">★★★★★</div><p>"Professional, responsive, and genuinely knowledgeable. They do not sell you more than you need — which is rare and refreshing in this industry."</p><div class="tcard-author"><div class="avatar">AS</div><div><div class="tcard-name">Arjun Sharma</div><div class="tcard-role">CISO · Logistics Company, Mumbai</div></div></div></div>
+  </div>
+</div>
+
+<div class="section" style="padding-bottom:0">
+  <div class="cta-band">
+    <div><h2>Ready to secure your business?</h2><p>Free consultation · No commitment · Response within 24 hours</p></div>
+    <div class="cta-btns">
+      <div class="btn-pri" onclick="showPage('contact',null)">Book a free call</div>
+      <div class="btn-sec">WhatsApp us</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><div class="shield-icon"></div>Company Name</div>
+      <p>Protecting businesses through governance, risk management, network security, and penetration testing.</p>
+      <div class="btn-pri" style="font-size:11px;padding:6px 14px" onclick="showPage('contact',null)">Get a free consultation</div>
+    </div>
+    <div class="footer-col"><h4>Services</h4><a>GRC &amp; Compliance</a><a>Network Security</a><a>Penetration Testing</a></div>
+    <div class="footer-col"><h4>Company</h4><a onclick="showPage('about',null)">About us</a><a>Case studies</a><a onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Legal</h4><a>Privacy policy</a><a>Cookie settings</a></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Company Name Security Pvt. Ltd. All rights reserved.</p>
+    <div class="footer-contact"><span>+91 1234567890</span><span>company_official@gmail.com</span></div>
+  </div>
+</div>
+<div class="wa-float" title="Chat on WhatsApp"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.3 8.3 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.528 5.845L.057 23.07a.75.75 0 00.918.943l5.453-1.428A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.698-.504-5.244-1.385l-.372-.214-3.862 1.012 1.034-3.77-.229-.381A9.96 9.96 0 012 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg></div>
+</div>
+
+<!-- SERVICES -->
+<div class="page" id="pg-services">
+<nav class="nav">
+  <div class="logo"><div class="shield-icon"></div>Company Name</div>
+  <div class="nav-links">
+    <div class="nl" onclick="showPage('home',null)">Home</div>
+    <div class="nl" onclick="showPage('about',null)">About</div>
+    <div class="nl active">Services</div>
+    <div class="nl">Case Studies</div>
+    <div class="nl" onclick="showPage('contact',null)">Contact</div>
+  </div>
+  <div class="nav-ctas"><div class="nav-phone">+91 123456789
+  </div><div class="btn-pri" onclick="showPage('contact',null)">Free consultation</div></div>
+</nav>
+<div class="hero" style="min-height:260px;padding:65px 40px 45px">
+  <div class="hero-grid"></div><div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="badge-dot"></div>Our services</div>
+    <h1 style="font-size:30px">End-to-end <span>security services</span></h1>
+    <p style="margin-bottom:0;font-size:14px">Every layer of your security posture — compliance, infrastructure, and active threat simulation.</p>
+  </div>
+</div>
+<div class="section" id="grc">
+  <div class="section-badge">Service 01</div>
+  <h2>Governance, Risk &amp; Compliance</h2>
+  <p class="section-sub">Navigate the regulatory landscape with confidence. We build frameworks that protect your business and satisfy auditors at every level.</p>
+  <div class="cards2" style="margin-bottom:28px">
+    <div class="scard"><h3>ISO 27001 certification</h3><p>End-to-end guidance — gap analysis, controls implementation, documentation, and audit preparation. We have guided 12 organisations through successful certification.</p></div>
+    <div class="scard"><h3>SOC 2 readiness</h3><p>Build the trust policies and technical controls for Type I and Type II SOC 2 reports. Ideal for SaaS companies onboarding enterprise clients.</p></div>
+    <div class="scard"><h3>Risk assessments</h3><p>Systematic identification and quantification of information security risks, prioritised by business impact and likelihood of exploitation.</p></div>
+    <div class="scard"><h3>Policy &amp; procedure writing</h3><p>Plain-language security policies your team will follow — mapped to the frameworks your auditors expect. No generic templates.</p></div>
+  </div>
+  <div style="display:flex;gap:10px"><div class="btn-pri" onclick="showPage('contact',null)">Request a GRC audit</div><div class="btn-sec">Download service brief</div></div>
+</div>
+<div class="section alt" id="network-security">
+  <div class="section-badge">Service 02</div>
+  <h2>Network Security</h2>
+  <p class="section-sub">Harden your perimeter and internal infrastructure against modern attack techniques. We assess, design, and monitor.</p>
+  <div class="process">
+    <div class="pstep"><div class="pstep-dot active">1</div><h4>Assess</h4><p>Current state network mapping and threat modelling</p></div>
+    <div class="pstep"><div class="pstep-dot active">2</div><h4>Design</h4><p>Segmentation architecture and hardening plan</p></div>
+    <div class="pstep"><div class="pstep-dot">3</div><h4>Harden</h4><p>Firewall, IDS/IPS deployment and config</p></div>
+    <div class="pstep"><div class="pstep-dot">4</div><h4>Monitor</h4><p>Ongoing detection and incident response</p></div>
+  </div>
+  <div style="margin-top:32px;display:flex;gap:10px"><div class="btn-pri" onclick="showPage('contact',null)">Get a network assessment</div><div class="btn-sec">Download service brief</div></div>
+</div>
+<div class="section" id="pentest">
+  <div class="section-badge">Service 03</div>
+  <h2>Penetration Testing</h2>
+  <p class="section-sub">Authorised, controlled attacks on your systems before the real attackers get there. We find what automated scanners consistently miss.</p>
+  <div class="cards3" style="margin-bottom:28px">
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><h3>Black box</h3><p>No prior knowledge. We attack as an external threat actor — blind, determined, persistent. Closest simulation of a real breach attempt.</p></div>
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><h3>White box</h3><p>Full access to source code and architecture. Deepest possible vulnerability coverage — ideal for pre-launch review and code audits.</p></div>
+    <div class="scard"><div class="scard-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><h3>Grey box</h3><p>Authenticated user perspective. Tests what a compromised insider or stolen credential can access within your environment.</p></div>
+  </div>
+  <div style="display:flex;gap:10px"><div class="btn-pri" onclick="showPage('contact',null)">Request a pentest quote</div><div class="btn-sec">Download service brief</div></div>
+</div>
+<div class="section alt" style="padding-bottom:0">
+  <div class="cta-band" style="margin:0 0 40px">
+    <div><h2>Not sure which service you need?</h2><p>Talk to us — we will assess your situation for free, no strings attached.</p></div>
+    <div class="btn-pri" onclick="showPage('contact',null)">Book a free consultation</div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="logo"><div class="shield-icon"></div>Company Name</div><p>Protecting businesses through governance, network security, and penetration testing.</p></div>
+    <div class="footer-col"><h4>Services</h4><a>GRC &amp; Compliance</a><a>Network Security</a><a>Penetration Testing</a></div>
+    <div class="footer-col"><h4>Company</h4><a onclick="showPage('about',null)">About us</a><a>Case studies</a><a onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Legal</h4><a>Privacy policy</a><a>Cookie settings</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Company Name Security Pvt. Ltd.</p><div class="footer-contact"><span>+91 123456789
+  </span></div></div>
+</div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="pg-about">
+<nav class="nav">
+  <div class="logo"><div class="shield-icon"></div>Company Name</div>
+  <div class="nav-links">
+    <div class="nl" onclick="showPage('home',null)">Home</div>
+    <div class="nl active">About</div>
+    <div class="nl" onclick="showPage('services',null)">Services</div>
+    <div class="nl">Case Studies</div>
+    <div class="nl" onclick="showPage('contact',null)">Contact</div>
+  </div>
+  <div class="nav-ctas"><div class="nav-phone">+91 123456789
+  </div><div class="btn-pri" onclick="showPage('contact',null)">Free consultation</div></div>
+</nav>
+<div class="hero" style="min-height:260px;padding:65px 40px 45px">
+  <div class="hero-grid"></div><div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="badge-dot"></div>About us</div>
+    <h1 style="font-size:30px">We are <span>Company Name</span></h1>
+    <p style="margin-bottom:0;font-size:14px">A team of practitioners from enterprise red teams, government infrastructure, and regulated industry compliance roles.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-badge">Our story</div>
+  <h2>From the field, not the classroom</h2>
+  <p class="section-sub">Company Name was founded on one belief — security advice is only as good as the real-world experience behind it. Our founders came from careers in offensive security operations and enterprise compliance before starting this firm in Hyderabad in 2019.</p>
+  <div class="cards3" style="margin-top:32px">
+    <div class="scard" style="text-align:center;padding:30px 20px"><div class="stat-num" style="font-size:30px;margin-bottom:8px">2019</div><div class="stat-label">Founded in Hyderabad</div></div>
+    <div class="scard" style="text-align:center;padding:30px 20px"><div class="stat-num" style="font-size:30px;margin-bottom:8px">8</div><div class="stat-label">Senior security engineers</div></div>
+    <div class="scard" style="text-align:center;padding:30px 20px"><div class="stat-num" style="font-size:30px;margin-bottom:8px">6</div><div class="stat-label">Industries served</div></div>
+  </div>
+</div>
+<div class="section alt">
+  <div class="section-badge">Our values</div>
+  <h2>Principles we never compromise on</h2>
+  <div class="cards3" style="margin-top:12px">
+    <div class="scard"><div style="font-size:24px;font-weight:800;color:var(--amber);margin-bottom:12px">01</div><h3>Transparency first</h3><p>We tell you what we find — including the uncomfortable parts. A flattering report that misses real risk is worse than useless.</p></div>
+    <div class="scard"><div style="font-size:24px;font-weight:800;color:var(--amber);margin-bottom:12px">02</div><h3>Practical over theoretical</h3><p>Every recommendation is something your team can actually implement. We write for engineers, not just auditors.</p></div>
+    <div class="scard"><div style="font-size:24px;font-weight:800;color:var(--amber);margin-bottom:12px">03</div><h3>Long-term partnership</h3><p>Security is not a one-time project. We build relationships that evolve with your threat landscape over years.</p></div>
+  </div>
+</div>
+<div class="section" style="padding-bottom:0">
+  <div class="cta-band" style="margin:0 0 40px">
+    <div><h2>Want to work with us?</h2><p>Start with a no-obligation 30-minute conversation.</p></div>
+    <div class="cta-btns"><div class="btn-pri" onclick="showPage('contact',null)">Work with us</div><div class="btn-sec" onclick="showPage('services',null)">View our services</div></div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="logo"><div class="shield-icon"></div>Company Name</div><p>Protecting businesses through governance, network security, and penetration testing.</p></div>
+    <div class="footer-col"><h4>Services</h4><a>GRC &amp; Compliance</a><a>Network Security</a><a>Penetration Testing</a></div>
+    <div class="footer-col"><h4>Company</h4><a>About us</a><a>Case studies</a><a onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Legal</h4><a>Privacy policy</a><a>Cookie settings</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Company Name Security Pvt. Ltd.</p><div class="footer-contact"><span>+91 123456789
+  </span></div></div>
+</div>
+</div>
+
+<!-- CONTACT -->
+<div class="page" id="pg-contact">
+<nav class="nav">
+  <div class="logo"><div class="shield-icon"></div>Company Name</div>
+  <div class="nav-links">
+    <div class="nl" onclick="showPage('home',null)">Home</div>
+    <div class="nl" onclick="showPage('about',null)">About</div>
+    <div class="nl" onclick="showPage('services',null)">Services</div>
+    <div class="nl">Case Studies</div>
+    <div class="nl active">Contact</div>
+  </div>
+  <div class="nav-ctas"><div class="nav-phone">+91 123456789
+  </div><div class="btn-pri">Free consultation</div></div>
+</nav>
+<div class="hero" style="min-height:220px;padding:55px 40px 40px">
+  <div class="hero-grid"></div><div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="badge-dot"></div>Get in touch</div>
+    <h1 style="font-size:26px">Let's talk about <span>your security</span></h1>
+    <p style="margin-bottom:0;font-size:14px">Three ways to reach us — choose what works best for you.</p>
+  </div>
+</div>
+<div class="section">
+  <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:start">
+    <div>
+      <div class="section-badge">Send a message</div>
+      <h2 style="margin-bottom:22px;font-size:22px">Contact form</h2>
+      <div class="form-grid">
+        <div class="field"><label>Full name *</label><input type="text" placeholder="Your full name"></div>
+        <div class="field"><label>Email address *</label><input type="email" placeholder="you@company.com"></div>
+        <div class="field"><label>Phone number</label><input type="tel" placeholder="+91 98765 43210"></div>
+        <div class="field"><label>Service interest *</label>
+          <select><option value="">Select a service</option><option>GRC &amp; Compliance</option><option>Network Security</option><option>Penetration Testing</option><option>Not sure yet</option></select>
+        </div>
+        <div class="field full"><label>Message *</label><textarea placeholder="Tell us about your security challenge or what you want to achieve..."></textarea></div>
+        <div class="field full" style="flex-direction:row;align-items:flex-start;gap:10px">
+          <input type="checkbox" id="consent" style="width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:#FF8C00">
+          <label for="consent" style="font-size:11px;color:var(--muted);cursor:pointer;line-height:1.6">I agree to the privacy policy and consent to being contacted about my enquiry.</label>
+        </div>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:10px;align-items:center">
+        <div class="btn-pri">Send message →</div>
+        <span style="font-size:11px;color:var(--muted)">Typically replied within 24 hours</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="section-badge">Or reach us directly</div>
+      <h2 style="margin-bottom:6px;font-size:22px">Book a call</h2>
+      <div class="scard" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div class="scard-icon" style="margin:0;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div><h3 style="margin-bottom:3px">Book a 30-min call</h3><p style="font-size:11px;color:var(--muted)">Via Calendly — pick a time that works for you</p></div>
+        </div>
+        <div class="btn-out">Open Calendly →</div>
+      </div>
+      <div class="scard" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div class="scard-icon" style="margin:0;flex-shrink:0;background:rgba(37,211,102,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a8.3 8.3 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.124.554 4.118 1.528 5.845L.057 23.07a.75.75 0 00.918.943l5.453-1.428A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.698-.504-5.244-1.385l-.372-.214-3.862 1.012 1.034-3.77-.229-.381A9.96 9.96 0 012 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg></div>
+          <div><h3 style="margin-bottom:3px">WhatsApp us directly</h3><p style="font-size:11px;color:var(--muted)">+91 1234567890
+     · Replies within 2 hours</p></div>
+        </div>
+        <div style="background:rgba(37,211,102,.1);color:#25D366;border:0.5px solid rgba(37,211,102,.25);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block">Open WhatsApp →</div>
+      </div>
+      <div style="padding:18px;background:var(--bg2);border:0.5px solid var(--border);border-radius:10px">
+        <div class="section-badge" style="margin-bottom:10px">Our office</div>
+        <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:6px">Company Name Security Pvt. Ltd.</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">Hyderabad, Telangana — 500032<br>companymail@gmail.com<br>+91 1234567890
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="logo"><div class="shield-icon"></div>Company Name</div><p>Protecting businesses through governance, network security, and penetration testing.</p></div>
+    <div class="footer-col"><h4>Services</h4><a>GRC &amp; Compliance</a><a>Network Security</a><a>Penetration Testing</a></div>
+    <div class="footer-col"><h4>Company</h4><a onclick="showPage('about',null)">About us</a><a>Case studies</a><a>Contact</a></div>
+    <div class="footer-col"><h4>Legal</h4><a>Privacy policy</a><a>Cookie settings</a></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Company Name Security Pvt. Ltd.</p><div class="footer-contact"><span>+91 123456789
+  </span><span>companymail@gmail.com</span></div></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  document.getElementById('frame').scrollTop=0;
+  document.querySelectorAll('.ptb').forEach(b=>b.classList.remove('on'));
+  if(btn){btn.classList.add('on')}
+  else{
+    document.querySelectorAll('.ptb').forEach(b=>{
+      const t=b.textContent.trim().toLowerCase();
+      if(t===id||(id==='home'&&t==='home')||(id==='services'&&t==='services')||(id==='about'&&t==='about')||(id==='contact'&&t==='contact'))
+        b.classList.add('on');
+    });
+  }
+  if(id==='home')setTimeout(animateStats,200);
+}
+function setFidelity(m){
+  const s=document.getElementById('site');
+  document.getElementById('hf-btn').classList.toggle('on',m==='hf');
+  document.getElementById('lf-btn').classList.toggle('on',m==='lf');
+  m==='lf'?s.classList.add('wf'):s.classList.remove('wf');
+}
+function animateStats(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const target=parseInt(el.dataset.target);
+    const suffix=el.dataset.suffix||'+';
+    let cur=0;const step=Math.ceil(target/50);
+    const t=setInterval(()=>{
+      cur=Math.min(cur+step,target);
+      el.textContent=cur+suffix;
+      if(cur>=target)clearInterval(t);
+    },30);
+  });
+}
+const frame=document.getElementById('frame');
+frame.addEventListener('scroll',()=>{
+  const s=frame.scrollTop;
+  const grid=document.getElementById('hero-grid');
+  if(grid)grid.style.transform='translateY('+(s*0.25)+'px)';
+  const nav=document.querySelector('#pg-home .nav');
+  if(nav)nav.style.background=s>50?'rgba(17,17,17,0.99)':'rgba(17,17,17,0.96)';
+},{ passive:true });
+setTimeout(animateStats,400);
+</script>
+</body>
+</html>
